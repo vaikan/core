@@ -24,7 +24,7 @@ var DEFAULT_SETTINGS = getDefaultSettings();
 
 var shortcuts = {
     "dev":       ["ide", "preview", "user-content", "vfs", "api", "sapi", "proxy", "redis", "profile", "oldclient", "homepage", "apps-proxy", "-s", "devel"],
-    "onlinedev": ["ide", "preview", "user-content", "vfs", "api", "proxy", "oldclient", "homepage", "apps-proxy", "profile", "worker", "-s", "onlinedev"],
+    "onlinedev": ["ide", "preview", "user-content", "vfs", "api", "proxy", "oldclient", "homepage", "apps-proxy", "profile", "-s", "onlinedev"],
     "beta":      ["ide", "preview", "user-content", "vfs", "proxy", "-s", "beta"],
     "s":         ["standalone", "-s", "standalone"]
 };
@@ -89,7 +89,9 @@ function main(argv, config, onLoaded) {
     var notDelayed = expanded.filter(function(c) { return delayLoadConfigs.indexOf(c) === -1 });
     
     startConfigs(notDelayed, function() {
-        startConfigs(delayed, function() {});
+        startConfigs(delayed, function() {
+            console.log("Cloud9 is up and running");
+        });
     });
     
     function startConfigs(configs, done) {
