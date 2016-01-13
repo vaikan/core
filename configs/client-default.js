@@ -325,6 +325,10 @@ module.exports = function(options) {
         "plugins/c9.ide.language.javascript.tern/architect_resolver",
         "plugins/c9.ide.language.javascript.eslint/eslint",
         {
+            packagePath: "plugins/c9.ide.language.python/python",
+            pythonPath:  "/usr/local/lib/python2.7/dist-packages:/usr/local/lib/python3.4/dist-packages",
+        },
+        {
             packagePath: "plugins/c9.ide.language.jsonalyzer/jsonalyzer",
             extendToken: extendToken,
             workspaceDir: workspaceDir,
