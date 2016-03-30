@@ -96,7 +96,7 @@ updateNodeModules() {
     echo "${magenta}--- Running npm install --------------------------------------------${resetColor}"
     safeInstall(){
         deps=(`"$NODE" -e 'console.log(Object.keys(require("./package.json").dependencies).join(" "))'`)
-        for m in $deps; do echo $m; 
+        for m in ${deps[@]}; do echo $m; 
             "$NPM" install --loglevel warn $m || true
         done
     }
@@ -110,8 +110,9 @@ updateCore() {
     fi
     
     # without this git merge fails on windows
-    mv ./scripts/install-sdk.sh  ./scripts/.install-sdk-tmp.sh 
-    cp ./scripts/.install-sdk-tmp.sh ./scripts/install-sdk.sh
+    mv ./scripts/install-sdk.sh  './scripts/.#install-sdk-tmp.sh'
+    rm ./scripts/.install-sdk-tmp.sh 
+    cp './scripts/.#install-sdk-tmp.sh' ./scripts/install-sdk.sh
     git checkout -- ./scripts/install-sdk.sh
 
     git remote add c9 https://github.com/c9/core 2> /dev/null || true

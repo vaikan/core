@@ -301,8 +301,10 @@ Terminal.prototype.scroll = function() {//TODO optimize lines
   var row;
 
   if (++this.ybase === Terminal.scrollback) {
-    this.ybase = this.ybase / 2 | 0;
-    this.lines = this.lines.slice(-(this.ybase + this.rows) + 1);
+    var lineCount = this.ybase / 2 | 0;
+    this.emit("discardOldScrollback", lineCount);
+    this.ybase -= lineCount;
+    this.lines = this.lines.slice(lineCount);
   }
 
   this.ydisp = this.ybase;
@@ -468,7 +470,7 @@ Terminal.prototype.writeInternal = function(data) {//TODO optimize lines
                   if (!this.insertMode)
                     line[this.x] = [this.curAttr, ch];
                   else
-                    line[insertY].splice(this.x, 0, [this.curAttr, ch]);
+                    line.splice(this.x, 0, [this.curAttr, ch]);
                   break;
                 case 0:
                   if (this.x > 0) this.x--;
@@ -479,7 +481,7 @@ Terminal.prototype.writeInternal = function(data) {//TODO optimize lines
                     line[this.x] = [this.curAttr, ch];
                     line[this.x + 1] = [this.curAttr, "\x00"];
                   } else {
-                    line[insertY].splice(this.x, 0, [this.curAttr, ch], [this.curAttr, ""]);
+                    line.splice(this.x, 0, [this.curAttr, ch], [this.curAttr, ""]);
                   }
                   this.x++;
                   break;

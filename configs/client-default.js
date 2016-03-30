@@ -63,7 +63,8 @@ module.exports = function(options) {
             projectId: options.project.id,
             projectName: options.projectName || "Project",
             configName: options.configName,
-            standalone: options.standalone
+            standalone: options.standalone,
+            dashboardUrl: options.dashboardUrl
         },
         {
             packagePath: "plugins/c9.core/settings",
@@ -261,6 +262,7 @@ module.exports = function(options) {
         "plugins/c9.ide.dialog.common/fileremove",
         "plugins/c9.ide.dialog.common/info",
         "plugins/c9.ide.dialog.common/question",
+        "plugins/c9.ide.dialog.common/upsell",
         {
             packagePath: "plugins/c9.ide.dialog.common/error",
             staticPrefix: staticPrefix + "/plugins/c9.ide.layout.classic"
@@ -321,13 +323,89 @@ module.exports = function(options) {
         "plugins/c9.ide.language.javascript/javascript",
         "plugins/c9.ide.language.javascript.immediate/immediate",
         "plugins/c9.ide.language.javascript.infer/jsinfer",
-        "plugins/c9.ide.language.javascript.tern/tern",
+        {
+            packagePath: "plugins/c9.ide.language.javascript.tern/tern",
+            plugins: [
+                {
+                    name: "angular",
+                    path: "tern/plugin/angular",
+                    enabled: true,
+                    hidden: false,
+                },
+                {
+                    name: "doc_comment",
+                    path: "tern/plugin/doc_comment",
+                    enabled: true,
+                    hidden: true,
+                },
+                {
+                    name: "es_modules",
+                    path: "tern/plugin/es_modules",
+                    enabled: true,
+                    hidden: true,
+                },
+                {
+                    name: "modules",
+                    path: "tern/plugin/modules",
+                    enabled: true,
+                    hidden: true,
+                },
+                {
+                    name: "node",
+                    path: "tern/plugin/node",
+                    enabled: true,
+                    hidden: false,
+                },
+                {
+                    name: "requirejs",
+                    path: "tern/plugin/requirejs",
+                    enabled: true,
+                    hidden: false,
+                },
+                {
+                    name: "architect_resolver",
+                    path: "./architect_resolver_worker",
+                    enabled: true,
+                    hidden: true,
+                },
+            ],
+            defs: [{
+                name: "ecma5",
+                enabled: true,
+                experimental: false,
+                firstClass: true,
+                path: "lib/tern/defs/ecma5.json"
+            }, {
+                name: "jQuery",
+                enabled: true,
+                experimental: false,
+                path: "lib/tern/defs/jquery.json"
+            }, {
+                name: "browser",
+                enabled: true,
+                experimental: false,
+                firstClass: true,
+                path: "lib/tern/defs/browser.json"
+            }, {
+                name: "underscore",
+                enabled: false,
+                experimental: false,
+                path: "lib/tern/defs/underscore.json"
+            }, {
+                name: "chai",
+                enabled: false,
+                experimental: false,
+                path: "lib/tern/defs/chai.json"
+            }]
+        },
+        "plugins/c9.ide.language.javascript.tern/ui",
         "plugins/c9.ide.language.javascript.tern/architect_resolver",
         "plugins/c9.ide.language.javascript.eslint/eslint",
         {
             packagePath: "plugins/c9.ide.language.python/python",
-            pythonPath:  "/usr/local/lib/python2.7/dist-packages:/usr/local/lib/python3.4/dist-packages",
+            pythonPath:  "/usr/local/lib/python2.7/dist-packages:/usr/local/lib/python3.4/dist-packages:/usr/local/lib/python3.5/dist-packages",
         },
+        "plugins/c9.ide.language.go/go",
         {
             packagePath: "plugins/c9.ide.language.jsonalyzer/jsonalyzer",
             extendToken: extendToken,
@@ -572,7 +650,8 @@ module.exports = function(options) {
         "plugins/c9.ide.preview/previewers/raw",
         {
             packagePath: "plugins/c9.ide.preview.browser/browser",
-            local: options.local
+            local: options.local,
+            staticPrefix: staticPrefix + "/plugins/c9.ide.preview.browser"
         },
         {
             packagePath: "plugins/c9.ide.preview.markdown/markdown",
@@ -615,14 +694,15 @@ module.exports = function(options) {
                 no_newsletter: options.user.no_newsletter,
                 subscription_on_signup: options.user.subscription_on_signup,
                 premium: options.user.premium,
-                region: options.user.region
+                region: options.user.region,
             },
             project: {
                 id: options.project.id,
                 name: options.project.name,
                 contents: options.project.contents,
                 descr: options.project.descr,
-                remote: options.project.remote
+                remote: options.project.remote,
+                premium: options.project.premium,
             }
         },
         {
@@ -641,14 +721,15 @@ module.exports = function(options) {
             basePath: workspaceDir
         },
         {
-            packagePath: "plugins/c9.ide.help.support/support",
-            baseurl: options.ideBaseUrl, 
-            userSnapApiKey: options.support.userSnapApiKey,
-            screenshotSupport: true
-        },
-        {
             packagePath: "plugins/c9.ide.help/help",
             staticPrefix: staticPrefix + "/plugins/c9.ide.help"
+        },
+        {
+            packagePath: "plugins/c9.ide.guide/guide",
+            staticPrefix: staticPrefix + "/plugins/c9.ide.guide"
+        },
+        {
+            packagePath: "plugins/c9.ide.guide/default"
         },
         {
             packagePath: "plugins/c9.ide.configuration/configure",
@@ -817,6 +898,13 @@ module.exports = function(options) {
         {
             packagePath: "plugins/c9.ide.collab/chat/chat",
             staticPrefix: staticPrefix + "/plugins/c9.ide.collab/chat"
+        });
+    }
+    
+    if (options.platform !== "win32") {
+        plugins.push({
+            packagePath: "plugins/c9.ide.language.codeintel/codeintel",
+            preinstalled: hosted && !options.ssh,
         });
     }
 

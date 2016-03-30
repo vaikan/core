@@ -87,7 +87,7 @@ define(function(require, exports, module) {
                 
             // first time take the ones from the options
             var _servers = servers;
-            if (_servers) {
+            if (_servers && _servers.length) {
                 servers = null;
                 return callback(null, _servers);
             }
@@ -223,6 +223,10 @@ define(function(require, exports, module) {
                         }
                         else if (err.code == 412) {
                             callback(fatalError(res.error.message, "dashboard"));
+                            return;
+                        }
+                        else if (err.code == 404) {
+                            callback(fatalError("This workspace no longer appears to exist or failed to be created.", "dashboard"));
                             return;
                         }
                         else if (err.code === 428 && res.error) {
@@ -374,8 +378,8 @@ define(function(require, exports, module) {
         function recallVfs() {
             var vfs;
             try {
-                vfs = JSON.parse(lastVfs || window.sessionStorage.getItem("vfsid"));
-                if (!lastVfs) {
+                vfs = JSON.parse(lastVfs || window.sessionStorage.getItem("vfsid") || null);
+                if (!lastVfs && vfs) {
                     window.sessionStorage.removeItem("vfsid");
                     lastVfs = JSON.stringify(vfs);
                 }
