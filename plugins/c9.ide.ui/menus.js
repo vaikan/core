@@ -466,14 +466,14 @@ define(function(require, exports, module) {
                 return;
             }
             
+            if (!plugin) 
+                plugin = menu, menu = null;
             if (index && typeof index == "object") 
                 plugin = index, index = null;
-            else if (menu instanceof Menu)
+            else if (!plugin && menu && menu.aml)
                 menu = menu.aml;
-            else if (menu && !menu.nodeFunc) 
-                plugin = menu, menu = null;
             
-            if (menuItem instanceof MenuItem || menuItem instanceof Divider)
+            if (menuItem && menuItem.aml)
                 menuItem = menuItem.aml;
             
             assert(plugin !== undefined, "addItemByPath requires a plugin argument");
@@ -947,8 +947,10 @@ define(function(require, exports, module) {
             }
             
             function show(x, y, type) {
-                if (type == "context")
-                    y++;
+                if (type == "context") {
+                    x += 2;
+                    y += 2;
+                }
                 lastCoords = { x : x, y : y };
                 aml.display(x, y);
             }
@@ -967,7 +969,7 @@ define(function(require, exports, module) {
                         checkItems.call(this, e);
                     },
                     "onitemclick" : function(e) {
-                        emit("itemclick", { value : e.value });
+                        emit("itemclick", { value : e.value, item: e.relatedNode });
                     }
                 });
                 aml.cloud9menu = plugin;

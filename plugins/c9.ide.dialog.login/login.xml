@@ -28,7 +28,7 @@
                   <a:textbox
                     id           = "txtUsername"
                     flex         = "7"
-                    class        = "ace_searchbox tb_textbox searchbox searchTxt tb_console tb_textboxInitial"
+                    class        = "ace_searchbox tb_textbox searchbox searchTxt tb_console"
                     focusselect  = "true" />
               </a:hbox>
             </div>
@@ -41,22 +41,22 @@
                   <a:secret
                     id           = "txtPassword"
                     flex         = "7"
-                    class        = "ace_searchbox tb_textbox searchbox searchTxt tb_console tb_textboxInitial"
+                    class        = "ace_searchbox tb_textbox searchbox searchTxt tb_console"
                     focusselect  = "true" />
               </a:hbox>
             </div>
             
             <a:hbox edge="23 0 10" pack="end" padding="8">
                 <a:button
-                  id       = "btnCancel"
-                  skin     = "btn-default-css3"
-                  caption  = "Cancel"
-                />
-                <a:button
                   id      = "btnChoose"
                   class   = "btn-green"
                   caption = "OK"
                   skin    = "btn-default-css3"
+                />
+                <a:button
+                  id       = "btnCancel"
+                  skin     = "btn-default-css3"
+                  caption  = "Cancel"
                 />
             </a:hbox>
         </a:vbox>

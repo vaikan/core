@@ -17,7 +17,7 @@ require("amd-loader");
 
 var build, options, pathConfig;
 
-describe("The Module", function(){
+describe("The build module", function(){
     this.timeout(60000);
 
     beforeEach(function(next) {
@@ -25,7 +25,7 @@ describe("The Module", function(){
         options = {
             version: "testing",
             compress: false,
-            baseUrl: "https://cdn.c9.io/static/abcd1234"
+            baseUrl: "https://static.c9.io/static/abcd1234"
         };
         
         buildPlugin(options, {
@@ -63,7 +63,7 @@ describe("The Module", function(){
         });
     });
     
-    it("test compile less", function(done) {
+    it("should compile less", function(done) {
         build.buildSkin("ssh", "dark", pathConfig, function(err, result) {
             if (err) return done(err);
             
@@ -71,6 +71,28 @@ describe("The Module", function(){
             assert(code);
             done(err);
         });
-        
+    });
+    
+    it("should remove comments", function(done) {
+        var removeLicenceComments = require("architect-build/module-deps").removeLicenceComments;
+        function remove(src) {
+            var module = { source: "" + src, path: ".js" };
+            removeLicenceComments(module);
+            return module.source;
+        }
+        assert.equal(remove("" + function() {
+            // 1
+            var a;
+            /***/ // hello
+            var x; // not removed
+            /* asd
+            */
+            x += "he/*ll*/o" + a;
+        }) , function() {
+            var a;
+            var x; // not removed
+            x += "he/*ll*/o" + a;
+        });
+        done();
     });
 });

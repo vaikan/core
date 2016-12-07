@@ -102,7 +102,8 @@ var HoverLink = function(editor) {
     this.onClick = function(e) {
         if (!this.editor.isFocused())
             return;
-        
+        if (e.detail != 1)
+            return;
         if (this.link && this.isOpen) { // && this.link.isFocused
             if (this.editor.selection.isEmpty()) {
                 this.editor.selection.setSelectionRange(this.range);
@@ -309,7 +310,7 @@ var HoverLink = function(editor) {
         else if (prompt.command === "git") { // git status
             var prefix = line.substr(0, match.start);
             if (match.start + value.length == line.length
-                && /^(#|[ MDR?A]{2})\s+([\w\s]+:\s+)?$/.test(prefix)
+                && /^(#|[ MDRU?A]{2})\s+([\w\s]+:\s+)?$/.test(prefix)
             ) {
                 match.type = "path";
             } else {

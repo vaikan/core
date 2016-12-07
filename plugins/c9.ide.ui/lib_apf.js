@@ -2978,9 +2978,25 @@ String.prototype.uCaseFirst = function(){
  *
  * @type {String}
  */
-String.prototype.trim = function(){
-    return this.replace(/[\s\n\r]*$/, "").replace(/^[\s\n\r]*/, "");
-};
+if (!String.prototype.trim) {
+    String.prototype.trim = function(){
+        return this.replace(/\s+$/, "").replace(/^\s+/, "");
+    };
+}
+/**
+ * annex b, but useful until trimStart/End are implemented by browsers
+ */
+if (!String.prototype.trimLeft) {
+    String.prototype.trimLeft = function(){
+        return this.replace(/^\s+/, "");
+    };
+}
+
+if (!String.prototype.trimRight) {
+    String.prototype.trimRight = function(){
+        return this.replace(/\s+$/, "");
+    };
+}
 
 /*
  * Concatenate a string with itself n-times.
@@ -15254,7 +15270,7 @@ apf.GuiElement = function(){
                 return;
             }
 
-            menu.display(e.x, e.y, null, this);
+            menu.display(e.x + 1, e.y + 1, null, this);
 
             e.returnValue = false;//htmlEvent.
             e.cancelBubble = true;

@@ -27,7 +27,7 @@
                     <a:textbox
                       id           = "txtFilename"
                       flex         = "7"
-                      class        = "ace_searchbox tb_textbox searchbox searchTxt tb_console tb_textboxInitial"
+                      class        = "ace_searchbox tb_textbox searchbox searchTxt tb_console"
                       focusselect  = "true" />
                 </a:hsplitbox>
             </div>
@@ -46,7 +46,7 @@
                 <a:textbox
                   id           = "txtDirectory"
                   flex         = "7"
-                  class        = "directory ace_searchbox tb_textbox searchbox searchTxt tb_console tb_textboxInitial"
+                  class        = "directory ace_searchbox tb_textbox searchbox searchTxt tb_console"
                   focusselect  = "true" />
             </a:hbox>
             
@@ -68,18 +68,18 @@
                 </a:checkbox>
                 <a:filler />
                 <a:button
-                  id       = "btnCancel"
-                  class    = "btn-red"
-                  skin     = "btn-default-css3"
-                  width   = "120"
-                  caption  = "Cancel"
-                />
-                <a:button
                   id      = "btnChoose"
                   class   = "btn-green"
                   width   = "120"
                   caption = "Save"
                   skin    = "btn-default-css3"
+                />
+                <a:button
+                  id       = "btnCancel"
+                  class    = "btn-red"
+                  skin     = "btn-default-css3"
+                  width   = "120"
+                  caption  = "Cancel"
                 />
             </a:hbox>
         </a:vbox>

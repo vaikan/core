@@ -96,7 +96,16 @@ define(function(require, exports, module) {
         }
     
         function getHotkey(command) {
+            if (!commands[command] || !commands[command].bindKey)
+                return "";
             return commands[command].bindKey[platform];
+        }
+        
+        function getPrettyHotkey(command) {
+            var key = getHotkey(command);
+            if (platform == "mac")
+                key = apf.hotkeys.toMacNotation(key);
+            return key;
         }
         
         var markDirty = lang.delayedCall(function(){
@@ -344,8 +353,6 @@ define(function(require, exports, module) {
                 commands.nextpane,
                 commands.previouspane,
                 commands.exit,
-                commands.hidesearchreplace,
-                commands.hidesearchinfiles,
                 commands.toggleconsole,
                 commands.runlast,
                 commands.run,
@@ -371,6 +378,10 @@ define(function(require, exports, module) {
                 commands.tab9,
                 commands.tab0,
                 commands.reopenLastTab,
+                commands.gotopaneleft,
+                commands.gotopaneright,
+                commands.gotopaneup,
+                commands.gotopanedown,
             ].filter(Boolean);
         }
         
@@ -556,6 +567,14 @@ define(function(require, exports, module) {
              * @return {String}
              */
             getHotkey: getHotkey,
+            
+            /**
+             * returns result of getHotkey formatted for displaying in menus
+             * 
+             * @param {String} name  the name of the command.
+             * @return {String}
+             */
+            getPrettyHotkey: getPrettyHotkey,
             
             /**
              * Executes the action tied to a command. This method will call

@@ -241,32 +241,33 @@ define(function(require, exports, module) {
             ["newLineMode",           "unix",   STRING, "newlinemode", 1],
             // Per document
             ["tabSize",               "4",      NUMBER, "tabsize", 1],
-            ["useSoftTabs",           "true",   BOOL,   "softtabs", 1],
-            ["guessTabSize",          "true",   BOOL,   "guesstabsize", 1],
-            ["useWrapMode",           "false",  BOOL,   "wrapmode"],
-            ["wrapToView",            "true",   BOOL,   "wrapmodeViewport"],
+            ["useSoftTabs",           true,     BOOL,   "softtabs", 1],
+            ["guessTabSize",          true,     BOOL,   "guesstabsize", 1],
+            ["useWrapMode",           false,    BOOL,   "wrapmode"],
+            ["wrapToView",            true,     BOOL,   "wrapmodeViewport"],
             
             // Ace
             ["fontSize",              "12",     NUMBER, "fontsize"],
             ["fontFamily",            font,     STRING, "fontfamily"],
-            ["antialiasedfonts",      "false",  BOOL],
-            ["overwrite",             "false",  BOOL,   "overwrite"],
+            ["antialiasedfonts",      false,    BOOL],
+            ["overwrite",             false,    BOOL,   "overwrite"],
             ["selectionStyle",        "line",   STRING, "selectstyle"],
             ["cursorStyle",           "ace",    STRING, "cursorstyle"],
-            ["highlightActiveLine",   "true",   BOOL,   "activeline"],
-            ["highlightGutterLine",   "true",   BOOL,   "gutterline"],
-            ["showInvisibles",        "false",  BOOL,   "showinvisibles"],
-            ["showPrintMargin",       "true",   BOOL,   "showprintmargin"],
-            ["displayIndentGuides",   "true",   BOOL,   "showindentguides"],
+            ["highlightActiveLine",   true,     BOOL,   "activeline"],
+            ["highlightGutterLine",   true,     BOOL,   "gutterline"],
+            ["showInvisibles",        false,    BOOL,   "showinvisibles"],
+            ["showPrintMargin",       true,     BOOL,   "showprintmargin"],
+            ["displayIndentGuides",   true,     BOOL,   "showindentguides"],
             ["printMarginColumn",     "80",     NUMBER, "printmargincolumn"],
-            ["behavioursEnabled",     "true",   BOOL,   "behaviors"],
-            ["wrapBehavioursEnabled", "false",  BOOL,   "wrapbehaviors"],
+            ["behavioursEnabled",     true,     BOOL,   "behaviors"],
+            ["wrapBehavioursEnabled", false,    BOOL,   "wrapbehaviors"],
             ["scrollSpeed",           "2",      NUMBER, "scrollspeed"],
-            ["showGutter",            "true",   BOOL,   "gutter"],
-            ["showFoldWidgets",       "true",   BOOL,   "folding"],
-            ["fadeFoldWidgets",       "true",   BOOL,   "fadefoldwidgets"],
-            ["highlightSelectedWord", "true",   BOOL,   "highlightselectedword"],
-            ["animatedScroll",        "true",   BOOL,   "animatedscroll"],
+            ["showGutter",            true,     BOOL,   "gutter"],
+            ["showLineNumbers",       true,     STRING],
+            ["showFoldWidgets",       true,     BOOL,   "folding"],
+            ["fadeFoldWidgets",       true,     BOOL,   "fadefoldwidgets"],
+            ["highlightSelectedWord", true,     BOOL,   "highlightselectedword"],
+            ["animatedScroll",        true,     BOOL,   "animatedscroll"],
             ["scrollPastEnd",         "0.5",    NUMBER],
             ["mergeUndoDeltas",       "off",    STRING],
             ["theme",                 defaultThemes[skin], STRING, "theme"]
@@ -588,8 +589,26 @@ define(function(require, exports, module) {
                     new Divider({ position: 60 }, handle)
                 ]
             }, handle);
+            menus.addItemByPath("context/ace/", mnuAce, 0, handle);
             
-            mnuGutter = new Menu({ id: "menuGutter" }, handle);
+            menus.addItemByPath("context/ace-gutter/", mnuGutter = new Menu({
+                id: "menuGutter",
+                items: [
+                    new Divider({ position: 1000 }, handle),
+                ]
+            }, handle), 0, handle);
+            menus.addItemByPath("context/ace-gutter/Gutter Options/", new ui.menu({}), 1100, handle);
+            menus.addItemByPath("context/ace-gutter/Gutter Options/Show Line Numbers", new ui.item({
+                caption: "Show Line Numbers",
+                type: "check",
+                checked: "user/ace/@showLineNumbers"
+            }, handle), 100, handle);
+            menus.addItemByPath("context/ace-gutter/Gutter Options/Show Fold Widgets", new ui.item({
+                caption: "Show Fold Widgets",
+                type: "check",
+                checked: "user/ace/@showFoldWidgets"
+            }, handle), 200, handle);
+            
             mnuGutter.on("show", function(e) {
                 var ace = tabs.focussedTab.editor.ace;
                 var region = ace.renderer.$gutterLayer.getRegion(e);
@@ -825,6 +844,17 @@ define(function(require, exports, module) {
                             position: 6000,
                             path: "user/ace/@showGutter"
                         },
+                        "Show Line Numbers" : {
+                            type: "dropdown",
+                            width: 150,
+                            path: "user/ace/@showLineNumbers",
+                            items: [
+                               { caption : "Normal", value : true },
+                               { caption : "Relative", value : "relative" },
+                               { caption : "None", value : false }
+                            ],
+                            position: 6250
+                        },
                         "Show Indent Guides" : {
                             type: "checkbox",
                             position: 6500,
@@ -976,11 +1006,12 @@ define(function(require, exports, module) {
     
             c = 0;
 
-            addEditorMenu("Edit/Code Folding/Fold", "fold"),
+            addEditorMenu("Edit/Code Folding/Toggle Fold", "toggleFoldWidget"),
             addEditorMenu("Edit/Code Folding/Unfold", "unfold"),
 
             menus.addItemByPath("Edit/Code Folding/~", new ui.divider(), c += 100, handle);
-            addEditorMenu("Edit/Code Folding/Fold All", "foldall"),
+            addEditorMenu("Edit/Code Folding/Fold Other", "foldOther");
+            addEditorMenu("Edit/Code Folding/Fold All", "foldall");
             addEditorMenu("Edit/Code Folding/Unfold All", "unfoldall");
     
             c = 0;
@@ -1430,11 +1461,16 @@ define(function(require, exports, module) {
                 return;
             }
             else if (/^#!/.test(firstLine)) {
-                var match = firstLine.match(/\b(node|bash|sh)\b/);
-                switch (match && match[1]) {
+                var match = firstLine.match(/\b(bash|ksh|node|perl|sh)\b|\b(php|python|ruby)/);
+                switch (match && (match[1] || match[2])) {
+                    case "bash": // fallthrough
+                    case "ksh":
+                    case "sh": syntax = "sh"; break;
                     case "node": syntax = "javascript"; break;
-                    case "sh": // fallthrough
-                    case "bash": syntax = "sh"; break;
+                    case "perl": syntax = "perl"; break;
+                    case "php": syntax = "php"; break;
+                    case "python": syntax = "python"; break;
+                    case "ruby": syntax = "ruby"; break;
                     default: syntax = ""; break;
                 }
             }
@@ -1529,6 +1565,41 @@ define(function(require, exports, module) {
             
             return s;
         }
+        
+        /***** Gutter Renderers *****/
+        
+        var relativeNumbers = {
+            getText: function(session, row) {
+                return (Math.abs(session.selection.lead.row - row) || (row + 1 + (row < 9 ? "\xb7" : ""))) + "";
+            },
+            getWidth: function(session, lastLineNumber, config) {
+                return session.getLength().toString().length * config.characterWidth;
+            },
+            update: function(e, editor) {
+                editor.renderer.$loop.schedule(editor.renderer.CHANGE_GUTTER);
+            },
+            attach: function(editor) {
+                editor.renderer.$gutterLayer.$renderer = this;
+                editor.on("changeSelection", this.update);
+            },
+            detach: function(editor) {
+                editor.renderer.$gutterLayer.$renderer = null;
+                editor.off("changeSelection", this.update);
+            }
+        };
+        
+        var noNumbers = {
+            getText: function(session, row) {
+                return "";
+            },
+            getWidth: function(session, lastLineNumber, config) {
+                return "";
+            },
+            attach: function(editor) {
+            },
+            detach: function(editor) {
+            },
+        };
         
         /**
          * The ace handle, responsible for events that involve all ace
@@ -2147,6 +2218,23 @@ define(function(require, exports, module) {
                         if (session)
                             session.$guessTabSize = false;
                         break;
+                    case "showLineNumbers":
+                        var renderer = ace.renderer;
+                        var gutterRenderer = renderer.$gutterLayer.$renderer;
+                        if (gutterRenderer && gutterRenderer.detach)
+                            gutterRenderer.detach(ace);
+                        if (value == "relative")
+                            gutterRenderer = relativeNumbers;
+                        else if (value)
+                            gutterRenderer = null;
+                        else
+                            gutterRenderer = noNumbers;
+                        dom.setCssClass(renderer.$gutter, "ace_gutter-compact", !value);
+                        renderer.$gutterLayer.$renderer = gutterRenderer;
+                        if (gutterRenderer && gutterRenderer.attach)
+                            gutterRenderer.attach(ace);
+                        renderer.$loop.schedule(renderer.CHANGE_GUTTER);
+                        return;
                 }
                 
                 if (session && docLut[name]) // this can be called for session different than current ace session

@@ -335,6 +335,8 @@ define(function(require, module, exports) {
                 plugin.on("tabDestroy", function(e){ if (e.last) updateTitle(); });
                 settings.on("user/tabs", function(){ updateTitle(focussedTab); });
             }
+            
+            emit("ready");
         }
         
         var drawn = false;
@@ -385,6 +387,7 @@ define(function(require, module, exports) {
                 
                 open({
                     path: name,
+                    focus: true,
                     active: true,
                     pane: e.pane,
                     value: "",
@@ -1077,6 +1080,12 @@ define(function(require, module, exports) {
             //     options.document.filter = true;
             options.editorType = type;
             
+            // Don't proceed if findEditorByFilename returned "none"
+            if (editor === "none") {
+                alert("Can't open " + basename(path) + ": file format unsupported");
+                return callback(new Error("File not supported"));
+            }
+            
             // Create the tab
             tab = createTab(options);
             
@@ -1283,7 +1292,7 @@ define(function(require, module, exports) {
                 
                 // Or keep tab until the new one is loaded
                 else {
-                    previewTab.unload();
+                    previewTab.unload({ animate: false });
                 }
             }
 
